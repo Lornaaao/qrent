@@ -4,6 +4,7 @@ import PropertyCard from '@/components/PropertyCard'
 import { HiSearch } from 'react-icons/hi'
 import Link from 'next/link'
 import { Suspense, useMemo } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { useTRPCClient } from '@/lib/trpc'
 import { useQuery } from '@tanstack/react-query'
 
@@ -215,12 +216,15 @@ function StatsPanel({
 }
 
 function Pagination({ current, totalPages }: { current: number; totalPages: number }) {
+  const searchParams = useSearchParams()
   const prevPage = Math.max(1, current - 1)
   const nextPage = Math.min(totalPages, current + 1)
 
   const makeHref = (pageNum: number) => {
-    const params = new URLSearchParams(window.location.search)
+    const params = new URLSearchParams(searchParams.toString())
     params.set('page', String(pageNum))
+    // Remove modal state parameter to prevent modal from opening on pagination
+    params.delete('filters')
     return `/search?${params.toString()}`
   }
 

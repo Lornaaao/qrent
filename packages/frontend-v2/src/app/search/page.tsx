@@ -6,7 +6,7 @@ import FilterModal from '@/components/FilterModal'
 import SearchResults from './SearchResults'
 
 export const metadata: Metadata = {
-  title: 'Search — BlueEstate Rentals',
+  title: 'Search — Your dream home awaits',
 }
 
 type SearchParams = {
