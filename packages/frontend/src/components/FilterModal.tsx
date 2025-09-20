@@ -36,42 +36,37 @@ export default function FilterModal() {
   const searchParams = useSearchParams()
   const isOpen = searchParams.get('filters') === 'open'
 
-  // Local state initialized from URL
+  // Local state initialized from URL - aligned with backend preferenceSchema
   const [university, setUniversity] = useState<string>('UNSW')
-  const [selectedTypes, setSelectedTypes] = useState<number[]>([])
+  const [selectedType, setSelectedType] = useState<number | null>(null) // Single property type
   const [priceMin, setPriceMin] = useState<string>('')
   const [priceMax, setPriceMax] = useState<string>('')
   const [bedroomsMin, setBedroomsMin] = useState<string>('')
   const [bedroomsMax, setBedroomsMax] = useState<string>('')
   const [bathroomsMin, setBathroomsMin] = useState<string>('')
   const [bathroomsMax, setBathroomsMax] = useState<string>('')
-  const [carMin, setCarMin] = useState<string>('')
-  const [carMax, setCarMax] = useState<string>('')
-  const [availableFrom, setAvailableFrom] = useState<string>('')
-  const [availableTo, setAvailableTo] = useState<string>('')
   const [commuteMin, setCommuteMin] = useState<string>('')
   const [commuteMax, setCommuteMax] = useState<string>('')
   const [rating, setRating] = useState<number>(13)
+  const [moveInDate, setMoveInDate] = useState<string>('')
   const [areas, setAreas] = useState<string[]>([])
 
   // Initialize from URL whenever modal opens
   useEffect(() => {
     if (!isOpen) return
     setUniversity(searchParams.get('university') || 'UNSW')
-    setSelectedTypes((searchParams.get('propertyType') || '').split(',').filter(Boolean).map(Number))
+    const propertyType = searchParams.get('propertyType')
+    setSelectedType(propertyType ? Number(propertyType) : null)
     setPriceMin(searchParams.get('priceMin') || '')
     setPriceMax(searchParams.get('priceMax') || '')
     setBedroomsMin(searchParams.get('bedroomsMin') || '')
     setBedroomsMax(searchParams.get('bedroomsMax') || '')
     setBathroomsMin(searchParams.get('bathroomsMin') || '')
     setBathroomsMax(searchParams.get('bathroomsMax') || '')
-    setCarMin(searchParams.get('carSpacesMin') || '')
-    setCarMax(searchParams.get('carSpacesMax') || '')
-    setAvailableFrom(searchParams.get('availableFrom') || '')
-    setAvailableTo(searchParams.get('availableTo') || '')
-    setCommuteMin(searchParams.get('commutingMin') || '')
-    setCommuteMax(searchParams.get('commutingMax') || '')
+    setCommuteMin(searchParams.get('commuteMin') || '')
+    setCommuteMax(searchParams.get('commuteMax') || '')
     setRating(Number(searchParams.get('rating') || 13))
+    setMoveInDate(searchParams.get('moveInDate') || '')
     setAreas((searchParams.get('areas') || '').split(',').filter(Boolean))
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen])
@@ -97,22 +92,19 @@ export default function FilterModal() {
   const onClear = () => {
     // Clear all form state
     setUniversity('UNSW')
-    setSelectedTypes([])
+    setSelectedType(null)
     setPriceMin('')
     setPriceMax('')
     setBedroomsMin('')
     setBedroomsMax('')
     setBathroomsMin('')
     setBathroomsMax('')
-    setCarMin('')
-    setCarMax('')
-    setAvailableFrom('')
-    setAvailableTo('')
     setCommuteMin('')
     setCommuteMax('')
     setRating(13) // Reset to default rating
+    setMoveInDate('')
     setAreas([])
-    
+
     // Update URL params but keep modal open
     const params = new URLSearchParams(searchParams.toString())
     ;[
@@ -121,10 +113,9 @@ export default function FilterModal() {
       'priceMin', 'priceMax',
       'bedroomsMin', 'bedroomsMax',
       'bathroomsMin', 'bathroomsMax',
-      'carSpacesMin', 'carSpacesMax',
-      'availableFrom', 'availableTo',
-      'commutingMin', 'commutingMax',
+      'commuteMin', 'commuteMax',
       'rating',
+      'moveInDate',
       'areas',
     ].forEach(k => params.delete(k))
     // keep modal open
@@ -140,20 +131,17 @@ export default function FilterModal() {
       else params.delete(key)
     }
     setOrDelete('university', university)
-    setOrDelete('propertyType', selectedTypes.join(','))
+    setOrDelete('propertyType', selectedType ? String(selectedType) : undefined)
     setOrDelete('priceMin', priceMin)
     setOrDelete('priceMax', priceMax)
     setOrDelete('bedroomsMin', bedroomsMin)
     setOrDelete('bedroomsMax', bedroomsMax)
     setOrDelete('bathroomsMin', bathroomsMin)
     setOrDelete('bathroomsMax', bathroomsMax)
-    setOrDelete('carSpacesMin', carMin)
-    setOrDelete('carSpacesMax', carMax)
-    setOrDelete('availableFrom', availableFrom)
-    setOrDelete('availableTo', availableTo)
-    setOrDelete('commutingMin', commuteMin)
-    setOrDelete('commutingMax', commuteMax)
+    setOrDelete('commuteMin', commuteMin)
+    setOrDelete('commuteMax', commuteMax)
     setOrDelete('rating', String(rating))
+    setOrDelete('moveInDate', moveInDate)
     setOrDelete('areas', areas.join(','))
     // reset page and close modal
     params.set('page', '1')
@@ -166,8 +154,8 @@ export default function FilterModal() {
     }
   }
 
-  const toggleType = (key: number) => {
-    setSelectedTypes(prev => prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key])
+  const selectType = (key: number) => {
+    setSelectedType(selectedType === key ? null : key)
   }
   const toggleArea = (area: string) => {
     setAreas(prev => prev.includes(area) ? prev.filter(a => a !== area) : [...prev, area])
@@ -209,7 +197,7 @@ export default function FilterModal() {
         {/* Content */}
         <div className="max-h-[70vh] overflow-y-auto px-5 py-4 space-y-6">
           {/* University (single-select) */}
-          <section>
+          {/* <section>
             <h3 className="text-sm font-medium text-slate-800 mb-3">University</h3>
             <div className="grid grid-cols-3 gap-3">
               {UNIVERSITY_OPTIONS.map(u => (
@@ -225,19 +213,28 @@ export default function FilterModal() {
                 </button>
               ))}
             </div>
-          </section>
+          </section> */}
 
-          {/* Property Type (multi-select) */}
+          {/* Property Type (single-select) */}
           <section>
             <h3 className="text-sm font-medium text-slate-800 mb-3">Property Type</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <button
+                type="button"
+                onClick={() => setSelectedType(null)}
+                className={`rounded-xl border px-3 py-2 text-sm font-medium transition ${
+                  selectedType === null ? 'border-blue-500 text-blue-600 bg-blue-50' : 'border-slate-200 text-slate-700 hover:border-blue-300'
+                }`}
+              >
+                Any
+              </button>
               {PROPERTY_TYPES.map(t => (
                 <button
                   key={t.key}
                   type="button"
-                  onClick={() => toggleType(t.key)}
+                  onClick={() => selectType(t.key)}
                   className={`rounded-xl border px-3 py-2 text-sm font-medium transition ${
-                    selectedTypes.includes(t.key) ? 'border-blue-500 text-blue-600 bg-blue-50' : 'border-slate-200 text-slate-700 hover:border-blue-300'
+                    selectedType === t.key ? 'border-blue-500 text-blue-600 bg-blue-50' : 'border-slate-200 text-slate-700 hover:border-blue-300'
                   }`}
                 >
                   {t.label}
@@ -247,58 +244,64 @@ export default function FilterModal() {
           </section>
 
           {/* Price */}
-          <section>
+          {/* <section>
             <h3 className="text-sm font-medium text-slate-800 mb-2">Price ($/week)</h3>
             <div className="grid grid-cols-2 gap-3">
               <input value={priceMin} onChange={e => setPriceMin(e.target.value)} type="number" placeholder="Min" className="rounded-xl border border-slate-200 px-3 py-2" />
               <input value={priceMax} onChange={e => setPriceMax(e.target.value)} type="number" placeholder="Max" className="rounded-xl border border-slate-200 px-3 py-2" />
             </div>
-          </section>
+          </section> */}
 
           {/* Bedrooms */}
-          <section>
+          {/* <section>
             <h3 className="text-sm font-medium text-slate-800 mb-2">Bedrooms</h3>
             <div className="grid grid-cols-2 gap-3">
               <input value={bedroomsMin} onChange={e => setBedroomsMin(e.target.value)} type="number" placeholder="Min" className="rounded-xl border border-slate-200 px-3 py-2" />
               <input value={bedroomsMax} onChange={e => setBedroomsMax(e.target.value)} type="number" placeholder="Max" className="rounded-xl border border-slate-200 px-3 py-2" />
             </div>
-          </section>
+          </section> */}
 
           {/* Bathrooms */}
           <section>
             <h3 className="text-sm font-medium text-slate-800 mb-2">Bathrooms</h3>
             <div className="grid grid-cols-2 gap-3">
-              <input value={bathroomsMin} onChange={e => setBathroomsMin(e.target.value)} type="number" placeholder="Min" className="rounded-xl border border-slate-200 px-3 py-2" />
+              <input
+                value={bathroomsMin}
+                onChange={e => {
+                  const value = e.target.value
+                  // Only allow empty string or non-negative numbers
+                  if (value === '' || (Number(value) >= 0 && !isNaN(Number(value)))) {
+                    setBathroomsMin(value)
+                  }
+                }}
+                type="number"
+                min="0"
+                placeholder="Min"
+                className="rounded-xl border border-slate-200 px-3 py-2"
+              />
               <input value={bathroomsMax} onChange={e => setBathroomsMax(e.target.value)} type="number" placeholder="Max" className="rounded-xl border border-slate-200 px-3 py-2" />
             </div>
           </section>
 
-          {/* Car spaces */}
+          {/* Move In Date */}
           <section>
-            <h3 className="text-sm font-medium text-slate-800 mb-2">Car spaces</h3>
-            <div className="grid grid-cols-2 gap-3">
-              <input value={carMin} onChange={e => setCarMin(e.target.value)} type="number" placeholder="Min" className="rounded-xl border border-slate-200 px-3 py-2" />
-              <input value={carMax} onChange={e => setCarMax(e.target.value)} type="number" placeholder="Max" className="rounded-xl border border-slate-200 px-3 py-2" />
-            </div>
-          </section>
-
-          {/* Available Date */}
-          <section>
-            <h3 className="text-sm font-medium text-slate-800 mb-2">Available Date</h3>
-            <div className="grid grid-cols-2 gap-3">
-              <input value={availableFrom} onChange={e => setAvailableFrom(e.target.value)} type="date" className="rounded-xl border border-slate-200 px-3 py-2" />
-              <input value={availableTo} onChange={e => setAvailableTo(e.target.value)} type="date" className="rounded-xl border border-slate-200 px-3 py-2" />
-            </div>
+            <h3 className="text-sm font-medium text-slate-800 mb-2">Move In Date</h3>
+            <input
+              value={moveInDate}
+              onChange={e => setMoveInDate(e.target.value)}
+              type="date"
+              className="w-full rounded-xl border border-slate-200 px-3 py-2"
+            />
           </section>
 
           {/* Commuting Time */}
-          <section>
+          {/* <section>
             <h3 className="text-sm font-medium text-slate-800 mb-2">Commuting Time (min)</h3>
             <div className="grid grid-cols-2 gap-3">
               <input value={commuteMin} onChange={e => setCommuteMin(e.target.value)} type="number" placeholder="Min" className="rounded-xl border border-slate-200 px-3 py-2" />
               <input value={commuteMax} onChange={e => setCommuteMax(e.target.value)} type="number" placeholder="Max" className="rounded-xl border border-slate-200 px-3 py-2" />
             </div>
-          </section>
+          </section> */}
 
           {/* Rating */}
           <section>

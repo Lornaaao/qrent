@@ -19,17 +19,21 @@ type SearchParams = {
   bedroomsMax?: string
   bathroomsMin?: string
   bathroomsMax?: string
+  commuteMin?: string
+  commuteMax?: string
+  rating?: string
+  moveInDate?: string
   areas?: string
 }
 
 export default function SearchResults({ searchParams }: { searchParams: SearchParams }) {
   const page = Number(searchParams.page ?? '1') || 1
   
-  // Build search parameters from URL
+  // Build search parameters from URL - aligned with backend preferenceSchema
   const searchFilters = useMemo(() => {
     const university = searchParams.university || 'UNSW'
     const regions = searchParams.areas ? searchParams.areas.split(',').filter(Boolean).join(' ') : undefined
-    
+
     return {
       targetSchool: university,
       page,
@@ -40,8 +44,12 @@ export default function SearchResults({ searchParams }: { searchParams: SearchPa
       maxBedrooms: searchParams.bedroomsMax ? Number(searchParams.bedroomsMax) : undefined,
       minBathrooms: searchParams.bathroomsMin ? Number(searchParams.bathroomsMin) : undefined,
       maxBathrooms: searchParams.bathroomsMax ? Number(searchParams.bathroomsMax) : undefined,
-      propertyType: searchParams.propertyType ? Number(searchParams.propertyType.split(',')[0]) : undefined,
+      minCommuteTime: searchParams.commuteMin ? Number(searchParams.commuteMin) : undefined,
+      maxCommuteTime: searchParams.commuteMax ? Number(searchParams.commuteMax) : undefined,
+      minRating: searchParams.rating ? Number(searchParams.rating) : undefined,
+      propertyType: searchParams.propertyType ? Number(searchParams.propertyType) : undefined,
       regions,
+      moveInDate: searchParams.moveInDate ? new Date(searchParams.moveInDate) : undefined,
       orderBy: [{
         averageScore: 'desc' as const,
       }]

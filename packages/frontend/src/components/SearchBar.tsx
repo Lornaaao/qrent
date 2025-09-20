@@ -29,7 +29,7 @@ export default function SearchBar() {
   useEffect(() => {
     setTargetSchool(searchParams.get('university') || 'UNSW');
     setMaxPrice(searchParams.get('priceMax') || '');
-    setCommuteTime(searchParams.get('commutingMax') || '');
+    setCommuteTime(searchParams.get('commuteMax') || '');
     setNumBedrooms(searchParams.get('bedroomsMax') || '');
   }, [searchParams]);
 
@@ -50,8 +50,12 @@ export default function SearchBar() {
 
     setOrDelete('university', targetSchool);
     setOrDelete('priceMax', maxPrice);
-    setOrDelete('commutingMax', commuteTime);
-    setOrDelete('bedroomsMax', numBedrooms);
+    setOrDelete('commuteMax', commuteTime);
+    setOrDelete('bedroomsMin', numBedrooms);
+    
+    if (parseInt(numBedrooms) < 5) {
+      setOrDelete('bedroomsMax', numBedrooms);
+    }
 
     params.set('page', '1');
     router.push(`/search?${params.toString()}`);
@@ -157,7 +161,7 @@ export default function SearchBar() {
 
               setOrDelete('university', targetSchool);
               setOrDelete('priceMax', maxPrice);
-              setOrDelete('commutingMax', commuteTime);
+              setOrDelete('commuteMax', commuteTime);
               setOrDelete('bedroomsMax', numBedrooms);
 
               if (pathname === '/search') {
