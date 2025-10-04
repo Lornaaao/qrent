@@ -27,13 +27,13 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
-        source: "/en",
-        destination: "https://qrent.rent/",
+        source: '/en',
+        destination: 'https://qrent.rent/',
         permanent: true,
       },
       {
-        source: "/zh",
-        destination: "https://qrent.rent/",
+        source: '/zh',
+        destination: 'https://qrent.rent/',
         permanent: true,
       },
     ];
