@@ -3,6 +3,8 @@ import './globals.css';
 import AppTRPCProvider from '@/lib/trpc-provider';
 import { AuthProvider } from '@/lib/auth-context';
 import Script from 'next/script';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
 export const metadata: Metadata = {
   title: 'Qrent - Your Perfect Home Awaits',
@@ -76,7 +78,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="bg-white text-slate-800 antialiased">
         <AppTRPCProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <Header />
+            {children}
+            <Footer />
+          </AuthProvider>
         </AppTRPCProvider>
       </body>
     </html>

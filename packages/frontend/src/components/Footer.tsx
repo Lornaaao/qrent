@@ -32,13 +32,13 @@ export default function Footer() {
           <nav aria-label="Footer navigation">
             <ul className="space-y-2 text-slate-700">
               <li>
-                <a href="#about" className="hover:text-blue-600 transition-colors">About</a>
+                <a href="/about" className="hover:text-blue-600 transition-colors">About</a>
               </li>
               <li>
-                <a href="#team" className="hover:text-blue-600 transition-colors">Meet our team</a>
+                <a href="/team" className="hover:text-blue-600 transition-colors">Meet our team</a>
               </li>
               <li>
-                <a href="#contact" className="hover:text-blue-600 transition-colors">Get in touch</a>
+                <a href="/contact" className="hover:text-blue-600 transition-colors">Get in touch</a>
               </li>
             </ul>
           </nav>
