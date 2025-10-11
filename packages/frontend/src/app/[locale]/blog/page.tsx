@@ -1,5 +1,5 @@
 import BlogContent from '@/components/BlogContent';
-import { getBlogPosts } from '@/lib/blog';
+import { getBlogPosts, type BlogPost } from '../../../lib/blog';
 
 // Temporary stub image URLs
 const BLOG_IMAGE_URLS = [
@@ -27,7 +27,7 @@ export default async function BlogPage() {
 
   return (
     <BlogContent
-      posts={posts.map(post => ({
+      posts={posts.map((post: BlogPost) => ({
         ...post,
         imageUrl: getImageForSlug(post.slug)
       }))}

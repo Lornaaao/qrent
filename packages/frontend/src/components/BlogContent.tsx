@@ -1,6 +1,6 @@
 'use client';
 
-import BlogPostCard from '@/components/BlogPostCard';
+import BlogPostCard from './BlogPostCard';
 import { useLocale, useTranslations } from 'next-intl';
 
 interface BlogPost {

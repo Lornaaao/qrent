@@ -6,14 +6,11 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'Qrent - Your Perfect Home Awaits',
-  description: 'Discover exceptional rental properties with ease. Your dream home is just a search away.',
-}
+  description:
+    'Discover exceptional rental properties with ease. Your dream home is just a search away.',
+};
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -85,5 +82,5 @@ export default function RootLayout({
         </AppTRPCProvider>
       </body>
     </html>
-  )
+  );
 }

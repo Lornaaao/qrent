@@ -1,5 +1,5 @@
 import BlogPostContent from '@/components/BlogPostContent';
-import { getBlogPost, getBlogPosts } from '@/lib/blog';
+import { getBlogPost, getBlogPosts } from '../../../../lib/blog';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
