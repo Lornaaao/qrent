@@ -1,5 +1,6 @@
-import { IoBed } from 'react-icons/io5';
+import { useLocale, useTranslations } from 'next-intl';
 import { FaBath } from 'react-icons/fa';
+import { IoBed } from 'react-icons/io5';
 
 interface PropertyCardProps {
   address: string;
@@ -29,7 +30,9 @@ export default function PropertyCard({
   keywords,
   availableDate,
 }: PropertyCardProps) {
-  const propertyTypeName = propertyType === 1 ? 'House' : 'Apartment';
+  const t = useTranslations('PropertyCard');
+  const locale = useLocale();
+  const propertyTypeName = propertyType === 1 ? t('house') : t('apartment');
 
   const capitalizeEnglishWords = (text: string) => {
     return text.replace(/\b[a-zA-Z]+\b/g, word => {
@@ -54,6 +57,19 @@ export default function PropertyCard({
 
   const keywordList = keywords.trim() ? keywords.split(' ').filter(Boolean).slice(0, 10) : [];
 
+  const getScoreColor = (score: number): string => {
+    if (score >= 18.3) return 'bg-orange-600 text-white';
+    if (score >= 18) return 'bg-orange-500 text-white';
+    return 'bg-orange-400 text-white';
+  };
+
+  const translateKeyword = (keyword: string): string => {
+    const lowercaseKeyword = keyword.toLowerCase();
+    // Try to get translation from the keywords object
+    const keywordTranslations = t.raw('keywords') as Record<string, string>;
+    return keywordTranslations[lowercaseKeyword] || keyword;
+  };
+
   const formatAvailableDate = (date: string | null | undefined): string | null => {
     if (date === null || date === undefined) {
       return null;
@@ -66,12 +82,12 @@ export default function PropertyCard({
 
     // If date is in the past or today
     if (diffDays <= 0) {
-      return 'Available now';
+      return t('availableNow');
     }
 
     // If within the next week
     if (diffDays <= 7) {
-      return `Available in ${diffDays} day${diffDays === 1 ? '' : 's'}`;
+      return t('availableInDays', { days: diffDays, plural: diffDays === 1 ? '' : 's' });
     }
 
     // For dates further out, show the actual date
@@ -81,7 +97,8 @@ export default function PropertyCard({
       year: availableDate.getFullYear() !== now.getFullYear() ? 'numeric' : undefined,
     };
 
-    return `Available ${availableDate.toLocaleDateString('en-US', options)}`;
+    const formattedDate = availableDate.toLocaleDateString(locale === 'zh' ? 'zh-CN' : 'en-US', options);
+    return `${t('available')} ${formattedDate}`;
   };
 
   const content = (
@@ -98,9 +115,9 @@ export default function PropertyCard({
       <p className="mt-1 text-sm text-slate-500">{formatRegion(region)}</p>
       <p className="mt-3 text-brand font-semibold text-lg">
         ${price.toLocaleString()}
-        <span className="text-sm text-slate-500 font-normal">/week</span>
+        <span className="text-sm text-slate-500 font-normal">{t('perWeek')}</span>
       </p>
-      <div className="mt-2 flex items-center gap-4 text-sm text-slate-600">
+      <div className="mt-2 flex items-center flex-wrap gap-2 text-sm text-slate-600">
         {bedroomCount && (
           <span className="flex items-center gap-1">
             <IoBed className="w-4 h-4" />
@@ -113,25 +130,25 @@ export default function PropertyCard({
             {bathroomCount}
           </span>
         )}
-        <span className="bg-blue-100 text-blue-800 px-2.5 py-1 rounded-full text-xs font-medium">
+        <span className="bg-blue-100 text-blue-800 px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap">
           {propertyTypeName}
         </span>
         {availableDate && formatAvailableDate(availableDate) && (
-          <span className="bg-green-100 text-green-700 px-2.5 py-1 rounded-full text-xs font-medium border border-green-200">
+          <span className="bg-green-100 text-green-700 px-2.5 py-1 rounded-full text-xs font-medium border border-green-200 whitespace-nowrap">
             {formatAvailableDate(availableDate)}
           </span>
         )}
       </div>
       {commuteTime !== undefined && (
-        <p className="mt-1 text-sm text-slate-500">{commuteTime} min to university</p>
+        <p className="mt-1 text-sm text-slate-500">{commuteTime} {t('minToUniversity')}</p>
       )}
 
       {/* Keywords as capsules */}
       {keywordList.length > 0 && (
         <div className="mt-2 flex flex-wrap gap-1">
           {keywordList.map((keyword, index) => (
-            <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
-              {keyword}
+            <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full whitespace-nowrap">
+              {translateKeyword(keyword)}
             </span>
           ))}
         </div>

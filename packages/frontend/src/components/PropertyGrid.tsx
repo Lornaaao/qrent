@@ -1,13 +1,21 @@
 'use client';
 
-import PropertyCard from './PropertyCard';
-import Section from './Section';
-import { useQuery } from '@tanstack/react-query';
 import { useTRPCClient } from '@/lib/trpc';
 import { SCHOOL } from '@qrent/shared/enum';
+import { useQuery } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
+import PropertyCard from './PropertyCard';
+import Section from './Section';
+
+
+type PropertiesData =
+  | NonNullable<Awaited<ReturnType<ReturnType<typeof useTRPCClient>['properties']['search']['query']>>>
+  | undefined;
+type Property = PropertiesData extends { properties: (infer P)[] } ? P : any;
 
 export default function PropertyGrid() {
+  const t = useTranslations('PropertyGrid');
   const [selectedUniversity, setSelectedUniversity] = useState(SCHOOL.UNSW);
   const trpc = useTRPCClient();
   const { data, isPending, error } = useQuery({
@@ -51,17 +59,16 @@ export default function PropertyGrid() {
 
   const sectionTitle = (
     <div className="flex items-center gap-3">
-      <span>Daily New Houses Around</span>
+      <span>{t('dailyNewHouses')}</span>
       <div className="flex rounded-lg border border-slate-200 bg-slate-50">
         {Object.values(SCHOOL).map(school => (
           <button
             key={school}
             onClick={() => setSelectedUniversity(school)}
-            className={`px-3 py-2 transition-colors rounded-md ${
-              selectedUniversity === school
-                ? `${getUniversityColors(school, true)} shadow-sm`
-                : getUniversityColors(school, false)
-            }`}
+            className={`px-3 py-2 transition-colors rounded-md ${selectedUniversity === school
+              ? `${getUniversityColors(school, true)} shadow-sm`
+              : getUniversityColors(school, false)
+              }`}
           >
             {school}
           </button>
@@ -97,7 +104,7 @@ export default function PropertyGrid() {
     return (
       <Section title={sectionTitle}>
         <div className="text-center py-8">
-          <p className="text-slate-600">Unable to load properties. Please try again later.</p>
+          <p className="text-slate-600">{t('loadError')}</p>
         </div>
       </Section>
     );
@@ -108,7 +115,7 @@ export default function PropertyGrid() {
   return (
     <Section title={sectionTitle}>
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {properties.map(property => (
+        {properties.map((property: Property) => (
           <PropertyCard
             key={property.id}
             address={property.address}

@@ -1,8 +1,8 @@
-import type { Metadata } from 'next'
-import './globals.css'
-import AppTRPCProvider from '@/lib/trpc-provider'
-import { AuthProvider } from '@/lib/auth-context'
-import Script from 'next/script'
+import { AuthProvider } from '@/lib/auth-context';
+import AppTRPCProvider from '@/lib/trpc-provider';
+import type { Metadata } from 'next';
+import Script from 'next/script';
+import './globals.css';
 
 export const metadata: Metadata = {
   title: 'Qrent - Your Perfect Home Awaits',
@@ -15,7 +15,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <Script
           strategy="afterInteractive"

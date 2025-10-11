@@ -1,15 +1,23 @@
-import { Prisma, prisma, Preference, Property } from '@qrent/shared';
-import { EMAIL_PREFERENCE } from '@qrent/shared/enum';
 import HttpError from '@/error/HttpError';
-import validationService from './ValidationService';
-import _ from 'lodash';
+import { Preference, Prisma, prisma, Property } from '@qrent/shared';
+import { EMAIL_PREFERENCE } from '@qrent/shared/enum';
 import { emailService } from './EmailService';
+import validationService from './ValidationService';
+
+// Helper function to get localized description
+function getLocalizedDescription(property: Property, locale: string = 'en'): string | null {
+  if (locale === 'zh' && property.descriptionCn) {
+    return property.descriptionCn;
+  }
+  return property.descriptionEn;
+}
 
 // Type definitions for service responses
-type PropertyWithRegion = Omit<Property, 'regionId'> & {
+type PropertyWithRegion = Omit<Property, 'regionId' | 'descriptionEn' | 'descriptionCn'> & {
   regionId?: number | undefined;
   region: string | null;
   commuteTime: number | null;
+  description: string | null;
 };
 
 type TopRegion = {
@@ -29,7 +37,7 @@ type SearchPropertiesResponse = {
 };
 
 class PropertyService {
-  async fetchSubscriptions(userId: number): Promise<PropertyWithRegion[]> {
+  async fetchSubscriptions(userId: number, locale: string = 'en'): Promise<PropertyWithRegion[]> {
     await validationService.validateUserExists(userId);
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -48,6 +56,9 @@ class PropertyService {
         regionId: undefined,
         region: p.region?.name || null,
         commuteTime: null,
+        description: getLocalizedDescription(p, locale),
+        descriptionEn: undefined,
+        descriptionCn: undefined,
       })) || []
     );
   }
@@ -102,7 +113,8 @@ class PropertyService {
       pageSize: number;
       publishedAt?: string;
       orderBy?: Prisma.PropertyOrderByWithRelationInput[];
-    }
+    },
+    locale: string = 'en'
   ): Promise<SearchPropertiesResponse> {
     const page = preferences.page;
     const pageSize = preferences.pageSize;
@@ -243,6 +255,9 @@ class PropertyService {
               regionId: undefined,
               region: p.region?.name || null,
               commuteTime,
+              description: getLocalizedDescription(p, locale),
+              descriptionEn: undefined,
+              descriptionCn: undefined,
             };
           })
         );

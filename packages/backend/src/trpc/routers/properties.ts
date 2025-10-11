@@ -1,7 +1,7 @@
-import { z } from 'zod';
-import { TRPCError } from '@trpc/server';
-import { createTRPC } from '../trpc';
 import { propertyService } from '@/services/PropertyService';
+import { TRPCError } from '@trpc/server';
+import { z } from 'zod';
+import { createTRPC } from '../trpc';
 
 const t = createTRPC();
 
@@ -99,12 +99,15 @@ export const propertiesRouter = t.router({
       // await propertyService.createPreference(createPreferenceData);
 
       // Search properties with all params including pagination
-      const properties = await propertyService.getPropertiesByPreferences({
-        ...createPreferenceData,
-        page,
-        pageSize,
-        orderBy,
-      });
+      const properties = await propertyService.getPropertiesByPreferences(
+        {
+          ...createPreferenceData,
+          page,
+          pageSize,
+          orderBy,
+        },
+        ctx.locale
+      );
 
       return properties;
     }),
@@ -124,7 +127,7 @@ export const propertiesRouter = t.router({
     }),
 
   getSubscriptions: protectedProcedure.query(async ({ ctx }) => {
-    const result = await propertyService.fetchSubscriptions(ctx.userId!);
+    const result = await propertyService.fetchSubscriptions(ctx.userId!, ctx.locale);
     return result;
   }),
 });
