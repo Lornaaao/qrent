@@ -12,7 +12,6 @@ export default createMiddleware({
   localePrefix: 'always',
 });
 
-
 export const config = {
   // Match only internationalized pathnames
   // Next.js doesn't support template literals in matcher, so we use hardcoded values
